@@ -28,6 +28,20 @@ RUN useradd -G www-data,root -u $uid -d /home/$user $user
 RUN mkdir -p /home/$user/.composer && \
     chown -R $user:$user /home/$user
 
+# Install Node & NPM with nvm
+ENV NVM_DIR=/usr/local/nvm
+ENV NODE_VERSION 16.14.2
+
+RUN mkdir -p $NVM_DIR && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
+ENV PATH="$NVM_DIR/versions/node/v${NODE_VERSION}/bin/:${PATH}"
+
+# confirm installation
+RUN node -v
+RUN npm -v
+
 # Install redis
 RUN pecl install -o -f redis \
     &&  rm -rf /tmp/pear \
